@@ -1,34 +1,58 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Streamdown } from "streamdown";
 import { code } from "@streamdown/code";
 
-function ClsCounter() {
-  const [cls, setCls] = useState(0);
-  const [entries, setEntries] = useState<{ value: number; time: number }[]>([]);
-  const observerRef = useRef<PerformanceObserver | null>(null);
+// Global CLS tracker that starts immediately, outside React lifecycle,
+// so it survives StrictMode double-mount and catches all shifts.
+const clsTracker = (() => {
+  let total = 0;
+  const log: { value: number; time: number }[] = [];
+  const listeners = new Set<() => void>();
 
-  useEffect(() => {
-    if (!("PerformanceObserver" in window)) return;
-
-    observerRef.current = new PerformanceObserver((list) => {
+  if (typeof window !== "undefined" && "PerformanceObserver" in window) {
+    const obs = new PerformanceObserver((list) => {
       for (const entry of list.getEntries()) {
-        if (!(entry as PerformanceEntry & { hadRecentInput?: boolean }).hadRecentInput) {
-          const value = (entry as PerformanceEntry & { value: number }).value;
-          setCls((prev) => prev + value);
-          setEntries((prev) => [
-            ...prev.slice(-19),
-            { value, time: Math.round(entry.startTime) },
-          ]);
+        const e = entry as PerformanceEntry & {
+          hadRecentInput?: boolean;
+          value: number;
+        };
+        if (!e.hadRecentInput) {
+          console.log("[v0] layout-shift detected:", e.value, "@ ", Math.round(e.startTime), "ms");
+          total += e.value;
+          log.push({ value: e.value, time: Math.round(e.startTime) });
+          if (log.length > 50) log.shift();
+          listeners.forEach((fn) => fn());
         }
       }
     });
+    obs.observe({ type: "layout-shift", buffered: true });
+  }
 
-    observerRef.current.observe({ type: "layout-shift", buffered: true });
+  return {
+    get total() {
+      return total;
+    },
+    get log() {
+      return log;
+    },
+    subscribe(fn: () => void) {
+      listeners.add(fn);
+      return () => {
+        listeners.delete(fn);
+      };
+    },
+  };
+})();
 
-    return () => {
-      observerRef.current?.disconnect();
-    };
+function ClsCounter() {
+  const [, forceUpdate] = useState(0);
+
+  useEffect(() => {
+    return clsTracker.subscribe(() => forceUpdate((n) => n + 1));
   }, []);
+
+  const cls = clsTracker.total;
+  const entries = clsTracker.log;
 
   return (
     <div
@@ -151,6 +175,7 @@ export default function App() {
       }}
     >
       <Streamdown plugins={{ code }}>{markdown}</Streamdown>
+      <span>will be shifted by above code</span>
       <ClsCounter />
     </div>
   );
