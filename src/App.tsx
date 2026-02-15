@@ -1,9 +1,15 @@
 import { Streamdown } from "streamdown";
 import { code } from "@streamdown/code";
 
-const markdown = `# Streamdown Code Plugin Demo
+const markdown = `# Streamdown layoutshift reproduction
 
-Here is a sample React component that demonstrates a custom hook for fetching data:
+Do the following:
+
+* Open dev console > Network tab > check "disable cache" > Reload
+
+You should see the following for codeblock bellow:
+
+* Loading spinner > [LAYOUT SHIFT] > Code not highlighted > Code highlighted
 
 \`\`\`typescript
 import { useState, useEffect } from "react";
@@ -57,7 +63,7 @@ export function useFetch<T>(url: string): FetchState<T> {
 }
 \`\`\`
 
-The hook above handles **loading states**, **error handling**, and **request cancellation** via \`AbortController\`.
+so much cls :^(
 `;
 
 export default function App() {
