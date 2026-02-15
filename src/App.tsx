@@ -1,9 +1,92 @@
+import { useEffect, useRef, useState } from "react";
 import { Streamdown } from "streamdown";
 import { code } from "@streamdown/code";
 
-const markdown = `# Streamdown Code Plugin Demo
+function ClsCounter() {
+  const [cls, setCls] = useState(0);
+  const [entries, setEntries] = useState<{ value: number; time: number }[]>([]);
+  const observerRef = useRef<PerformanceObserver | null>(null);
 
-Here is a sample React component that demonstrates a custom hook for fetching data:
+  useEffect(() => {
+    if (!("PerformanceObserver" in window)) return;
+
+    observerRef.current = new PerformanceObserver((list) => {
+      for (const entry of list.getEntries()) {
+        if (!(entry as PerformanceEntry & { hadRecentInput?: boolean }).hadRecentInput) {
+          const value = (entry as PerformanceEntry & { value: number }).value;
+          setCls((prev) => prev + value);
+          setEntries((prev) => [
+            ...prev.slice(-19),
+            { value, time: Math.round(entry.startTime) },
+          ]);
+        }
+      }
+    });
+
+    observerRef.current.observe({ type: "layout-shift", buffered: true });
+
+    return () => {
+      observerRef.current?.disconnect();
+    };
+  }, []);
+
+  return (
+    <div
+      style={{
+        position: "fixed",
+        bottom: 16,
+        right: 16,
+        zIndex: 9999,
+        background: cls === 0 ? "#166534" : cls < 0.1 ? "#854d0e" : "#991b1b",
+        color: "#fff",
+        fontFamily: "monospace",
+        fontSize: 12,
+        borderRadius: 8,
+        padding: "10px 14px",
+        minWidth: 180,
+        boxShadow: "0 4px 24px rgba(0,0,0,0.25)",
+        lineHeight: 1.5,
+      }}
+    >
+      <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 4 }}>
+        CLS: {cls.toFixed(4)}
+      </div>
+      <div style={{ opacity: 0.7, fontSize: 11, marginBottom: 6 }}>
+        {cls === 0
+          ? "Good (no shifts)"
+          : cls < 0.1
+            ? "Needs improvement"
+            : "Poor (> 0.1)"}
+      </div>
+      {entries.length > 0 && (
+        <div
+          style={{
+            borderTop: "1px solid rgba(255,255,255,0.2)",
+            paddingTop: 6,
+            maxHeight: 120,
+            overflowY: "auto",
+          }}
+        >
+          {entries.map((e, i) => (
+            <div key={i} style={{ fontSize: 10, opacity: 0.8 }}>
+              +{e.value.toFixed(4)} @ {e.time}ms
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+const markdown = `# Streamdown CLS Code Plugin Demo
+
+Loading codeblock causes cls. To test it:
+
+* Open devtool > Network tab > Disable cache ☑ > Reload page
+
+You should notice the following for the codeblock bellow:
+
+* Loading spinner > Code not higlighted > Code higlighted
 
 \`\`\`typescript
 import { useState, useEffect } from "react";
@@ -56,8 +139,6 @@ export function useFetch<T>(url: string): FetchState<T> {
   return state;
 }
 \`\`\`
-
-The hook above handles **loading states**, **error handling**, and **request cancellation** via \`AbortController\`.
 `;
 
 export default function App() {
@@ -70,6 +151,7 @@ export default function App() {
       }}
     >
       <Streamdown plugins={{ code }}>{markdown}</Streamdown>
+      <ClsCounter />
     </div>
   );
 }
