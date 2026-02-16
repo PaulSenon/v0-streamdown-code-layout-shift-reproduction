@@ -1,7 +1,7 @@
 import { Streamdown } from "streamdown";
 import { code } from "@streamdown/code";
 
-const markdown = `# Streamdown layoutshift reproduction
+const markdown = `# Streamdown layoutshift fixed
 
 Do the following:
 
@@ -9,7 +9,7 @@ Do the following:
 
 You should see the following for codeblock bellow:
 
-* Loading spinner > [LAYOUT SHIFT] > Code not highlighted > Code highlighted
+* Code not highlighted > Code highlighted (no cls)
 
 \`\`\`typescript
 import { useState, useEffect } from "react";
@@ -63,7 +63,7 @@ export function useFetch<T>(url: string): FetchState<T> {
 }
 \`\`\`
 
-so much cls :^(
+no cls :^D
 `;
 
 export default function App() {
