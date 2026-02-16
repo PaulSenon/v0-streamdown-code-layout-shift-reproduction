@@ -9,10 +9,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@streamdown/code": "^1.0.2",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "streamdown": "^2.1.0",
-    "@streamdown/code": "^1.0.2"
+    "streamdown": "file:.tmp/streamdown-2.2.0.tgz"
   },
   "devDependencies": {
     "@types/react": "^19.2.7",
