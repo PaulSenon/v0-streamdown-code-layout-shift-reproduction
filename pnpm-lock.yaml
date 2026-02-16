@@ -18,8 +18,8 @@ importers:
         specifier: ^19.1.0
         version: 19.2.4(react@19.2.4)
       streamdown:
-        specifier: ^2.1.0
-        version: 2.2.0(react@19.2.4)
+        specifier: file:.tmp/streamdown-2.2.0.tgz
+        version: file:.tmp/streamdown-2.2.0.tgz(react@19.2.4)
     devDependencies:
       '@types/react':
         specifier: ^19.2.7
@@ -1169,8 +1169,9 @@ packages:
   space-separated-tokens@2.0.2:
     resolution: {integrity: sha512-PEGlAwrG8yXGXRjW32fGbg66JAlOAwbObuqVoJpv/mRgoWDQfgH1wDPvtzWyUSNAXBGSk8h755YDbbcEy3SH2Q==}
 
-  streamdown@2.2.0:
-    resolution: {integrity: sha512-Y51o1I/sjpAy4Yn7j7R4TbUl9gcUZ7BTrHS+68IhrUBoYpNQZ28z06vww1MBFu4mSwvgF8xQIxIH2b9S9IHDyQ==}
+  streamdown@file:.tmp/streamdown-2.2.0.tgz:
+    resolution: {integrity: sha512-3RRA42ointoUdprNs2TjiRgHOsE8ekIibybKB5T7EHYQ1b5iplM4W5KyNrFLnrbCl/8dJt/E4zI8KZmpJZuLGg==, tarball: file:.tmp/streamdown-2.2.0.tgz}
+    version: 2.2.0
     peerDependencies:
       react: ^18.0.0 || ^19.0.0
 
@@ -2629,7 +2630,7 @@ snapshots:
 
   space-separated-tokens@2.0.2: {}
 
-  streamdown@2.2.0(react@19.2.4):
+  streamdown@file:.tmp/streamdown-2.2.0.tgz(react@19.2.4):
     dependencies:
       clsx: 2.1.1
       hast-util-to-jsx-runtime: 2.3.6
